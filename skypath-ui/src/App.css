@@ -1,0 +1,57 @@
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  background-color: #034b6e;
+  color: #fff;
+}
+
+.app {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.logo {
+  width: 50px;
+  margin-right: 10px;
+}
+
+.section {
+  background-color: #006491;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+
+.section input[type="text"],
+.section input[type="number"] {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 5px;
+}
+
+.section input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+.section button {
+  padding: 10px 20px;
+  background-color: #00cfff;
+  border: none;
+  border-radius: 5px;
+  color: #003b5c;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.section button:hover {
+  background-color: #00b5e6;
+}
