@@ -14,7 +14,13 @@ body {
 .header {
   display: flex;
   align-items: center;
+  justify-content: center;
   margin-bottom: 40px;
+}
+.header h1 {
+  font-size: 4rem;
+  font-weight: bold;
+  margin: 0;
 }
 
 .logo {
@@ -27,11 +33,12 @@ body {
   padding: 20px;
   margin-bottom: 20px;
   border-radius: 10px;
+  height: 100%;
 }
 
 .section input[type="text"],
 .section input[type="number"] {
-  width: 100%;
+  width: 75%;
   padding: 10px;
   margin: 10px 0;
   border: none;
@@ -43,6 +50,7 @@ body {
 }
 
 .section button {
+  margin-top: 20px;
   padding: 10px 20px;
   background-color: #00cfff;
   border: none;
@@ -50,8 +58,32 @@ body {
   color: #003b5c;
   font-weight: bold;
   cursor: pointer;
+  display: flex;
 }
 
 .section button:hover {
   background-color: #00b5e6;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 1rem;
+}
+
+.input-group {
+  flex: 1;
+}
+
+.output-box {
+  flex: 1;
+  background: #3dbbff;
+  padding: 1rem;
+  border-radius: 10px;
+  color: #003b5c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
