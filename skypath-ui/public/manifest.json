@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "SkyPath Search Engine",
+  "name": "SkyPath Search Engine - A Search Engine for the Sky", 
   "icons": [
     {
       "src": "favicon.ico",
