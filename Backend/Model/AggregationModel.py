@@ -1,17 +1,13 @@
-
-
 class AggregationModel:
     def __init__(self, db_connection):
-        # Variables
         self.db = db_connection
 
-    def get_country_with_most_airports(self, country): 
+    def get_country_with_most_airports(self): 
         """
         Country with Most Airports.
         """
         try:
             with self.db.cursor() as cursor:
-                # Querying Data
                 cursor.execute(
                     """
                         SELECT country, COUNT(*) as num_airports 
@@ -23,29 +19,27 @@ class AggregationModel:
                 )
                 country = cursor.fetchone()
 
-                # Checking Return Data
                 if not country:
                     return {"message": "No Country"}
                 
                 return country
 
         except Exception as e:
-        return {"error": "An error occurred while fetching country", "details": str(e)}
+            return {"error": "An error occurred while fetching country", "details": str(e)}
 
-     def get_cities_with_most_airlines(self, k): 
+    def get_cities_with_most_airlines(self, k): 
         """
-        Country with Most Airports.
+        Cities with Most Airlines.
         """
         try:
             with self.db.cursor() as cursor:
-                # Querying Data
                 cursor.execute(
                     """
                         SELECT city, COUNT(*) as total_routes
                         FROM (
-                        SELECT source_city AS city FROM routes
-                        UNION ALL
-                        SELECT destination_city AS city FROM routes
+                            SELECT source_city AS city FROM routes
+                            UNION ALL
+                            SELECT destination_city AS city FROM routes
                         ) AS all_routes
                         GROUP BY city
                         ORDER BY total_routes DESC
@@ -55,11 +49,10 @@ class AggregationModel:
                 )
                 cities = cursor.fetchall()
 
-                # Checking Return Data
                 if not cities:
                     return {"message": "Country has no cities"}
                 
                 return cities
 
         except Exception as e:
-        return {"error": "An error occurred while fetching cities", "details": str(e)}
+            return {"error": "An error occurred while fetching cities", "details": str(e)}

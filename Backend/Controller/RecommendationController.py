@@ -4,10 +4,9 @@ from Model.RecommendationModel import RecommendationModel
 
 class RecommendationController:
     """
-    Controller for Aggregation.
+    Controller for Recommendation.
     """
     def __init__(self):
-        # Variales
         self.blueprint = Blueprint('recommendation_blueprint', __name__)
         self.db = Database()
 
@@ -18,74 +17,76 @@ class RecommendationController:
 
     def find_trip_between_two_cities(self):
         try:
-            # Request Data
             data = request.json
             cities = data.get("cities")
 
-            # Request Data Check
             if not cities:
                 return jsonify({"error": "Missing cities"}), 400
 
-            # Pulling Data from Database
             connection = self.db.connection()
-            aggregationModel = aggregationModel(connection)
-            trip = aggregationModel.get_trip_between_two_cities(cities)
+            recommendationModel = RecommendationModel(connection)
+            trip = recommendationModel.get_trip_between_two_cities(cities)
 
-            # Return Data Check
             if not trip:
                 return jsonify({"message": "No trip found"}), 404
-            
-            return jsonify(cities), 200
+
+            return jsonify(trip), 200
+
+        except Exception as e:
+            return jsonify({"error": "An error occurred", "details": str(e)}), 500
+
+        finally:
+            self.db.close_connections()
 
     def find_trip_between_two_cities_in_stops(self):
         try:
-            # Request Data
             data = request.json
             cities = data.get("cities")
             stops = data.get("stops")
 
-            # Request Data Check
             if not cities:
                 return jsonify({"error": "Missing cities"}), 400
             if not stops:
                 return jsonify({"error": "Missing stops"}), 400
 
-            # Pulling Data from Database
             connection = self.db.connection()
-            aggregationModel = aggregationModel(connection)
-            trip = aggregationModel.get_trip_between_two_cities_in_stops(cities, stops)
+            recommendationModel = RecommendationModel(connection)
+            trip = recommendationModel.get_trip_between_two_cities_in_stops(cities, stops)
 
-            # Return Data Check
             if not trip:
                 return jsonify({"message": "No trip found"}), 404
-            
-            return jsonify(cities), 200
+
+            return jsonify(trip), 200
+
+        except Exception as e:
+            return jsonify({"error": "An error occurred", "details": str(e)}), 500
+
+        finally:
+            self.db.close_connections()
 
     def find_cities_within_stops(self):
         try:
-            # Request Data
             data = request.json
             city = data.get("city")
             stops = data.get("stops")
 
-            # Request Data Check
-            if not cities:
+            if not city:
                 return jsonify({"error": "Missing city"}), 400
             if not stops:
                 return jsonify({"error": "Missing stops"}), 400
 
-
-            # Pulling Data from Database
             connection = self.db.connection()
-            aggregationModel = aggregationModel(connection)
-            trip = aggregationModel.get_cities_within_stops(city, stops)
+            recommendationModel = RecommendationModel(connection)
+            trip = recommendationModel.get_cities_within_stops(city, stops)
 
-            # Return Data Check
             if not trip:
                 return jsonify({"message": "No trip found"}), 404
-            
-            return jsonify(cities), 200
-        
+
+            return jsonify(trip), 200
+
+        except Exception as e:
+            return jsonify({"error": "An error occurred", "details": str(e)}), 500
+
         finally:
             self.db.close_connections()
 
