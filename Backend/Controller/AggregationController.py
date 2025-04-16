@@ -7,6 +7,7 @@ class AggregationController:
     Controller for Aggregation.
     """
     def __init__(self):
+        # Variales
         self.blueprint = Blueprint('aggregation_blueprint', __name__)
         self.db = Database()
 
@@ -16,13 +17,15 @@ class AggregationController:
 
     def find_country_with_most_airports(self):
         try:
-            connection = self.db.connection()
+            # Pulling Data from Database
+            connection = self.db.get_connection()
             aggregationModel = AggregationModel(connection)
             country = aggregationModel.get_country_with_most_airports()
 
+            # Return Data Check
             if not country:
                 return jsonify({"message": "No country found"}), 404
-
+            
             return jsonify(country), 200
 
         except Exception as e:
@@ -30,27 +33,31 @@ class AggregationController:
 
         finally:
             self.db.close_connections()
+            
 
     def find_cities_with_most_airlines(self):
         try:
-            data = request.json
-            k = data.get("k")
+            # Request Data
+            k = int(request.args.get("k"))
 
+            # Request Data Check
             if not k:
                 return jsonify({"error": "Missing k"}), 400
 
-            connection = self.db.connection()
+            # Pulling Data from Database
+            connection = self.db.get_connection()
             aggregationModel = AggregationModel(connection)
             cities = aggregationModel.get_cities_with_most_airlines(k)
 
+            # Return Data Check
             if not cities:
                 return jsonify({"message": "No cities found"}), 404
-
+            
             return jsonify(cities), 200
-
+        
         except Exception as e:
             return jsonify({"error": "An error occurred while fetching cities", "details": str(e)}), 500
-
+        
         finally:
             self.db.close_connections()
 

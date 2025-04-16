@@ -8,12 +8,12 @@ class SparkConnector:
     def __init__(self):
         self.spark = SparkSession.builder \
             .appName("AirlineGraph") \
-            .config("spark.jars.packages", "graphframes:graphframes:0.8.2-spark3.1-s_2.12") \
+            .config("spark.jars.packages", "mysql:mysql-connector-java:8.0.33,graphframes:graphframes:0.8.2-spark3.1-s_2.12") \
             .getOrCreate()
 
         self.airports = self.spark.read \
             .format("jdbc") \
-            .option("url", "jdbc:mysql://airlines-search-engine-db.chg68wcwe6cs.us-west-1.rds:3306/airDB") \
+            .option("url", "jdbc:mysql://airlines-search-engine-db.chg68wcwe6cs.us-west-1.rds.amazonaws.com:3306/airDB") \
             .option("driver", "com.mysql.cj.jdbc.Driver") \
             .option("dbtable", "airports") \
             .option("user", os.getenv("JDBC_USER")) \
@@ -22,7 +22,7 @@ class SparkConnector:
 
         self.routes = self.spark.read \
             .format("jdbc") \
-            .option("url", "jdbc:mysql://airlines-search-engine-db.chg68wcwe6cs.us-west-1.rds:3306/airDB") \
+            .option("url", "jdbc:mysql://airlines-search-engine-db.chg68wcwe6cs.us-west-1.rds.amazonaws.com:3306/airDB") \
             .option("driver", "com.mysql.cj.jdbc.Driver") \
             .option("dbtable", "routes") \
             .option("user", os.getenv("JDBC_USER")) \

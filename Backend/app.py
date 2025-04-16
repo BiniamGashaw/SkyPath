@@ -13,6 +13,6 @@ app.register_blueprint(search_blueprint, url_prefix='/search')
 app.register_blueprint(aggregation_blueprint, url_prefix='/aggregation')
 app.register_blueprint(recommendation_blueprint, url_prefix='/recommendation')
 
-#Run Flask app
-if __name__ == "__main__":
-    app.run(debug=True)
+# Run app on port 5000
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)

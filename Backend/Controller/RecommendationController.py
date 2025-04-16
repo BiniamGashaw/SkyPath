@@ -4,9 +4,10 @@ from Model.RecommendationModel import RecommendationModel
 
 class RecommendationController:
     """
-    Controller for Recommendation.
+    Controller for Aggregation.
     """
     def __init__(self):
+        # Variales
         self.blueprint = Blueprint('recommendation_blueprint', __name__)
         self.db = Database()
 
@@ -17,76 +18,88 @@ class RecommendationController:
 
     def find_trip_between_two_cities(self):
         try:
-            data = request.json
-            cities = data.get("cities")
+            # Request Data
+            city1 = request.args.get("city1")
+            city2 = request.args.get("city2")
 
-            if not cities:
-                return jsonify({"error": "Missing cities"}), 400
+            # Request Data Check
+            if not city1 or not city2:
+                return jsonify({"error": "Missing city1 or city2"}), 400
 
-            connection = self.db.connection()
+            # Pulling Data from Database
+            connection = self.db.get_connection()
             recommendationModel = RecommendationModel(connection)
-            trip = recommendationModel.get_trip_between_two_cities(cities)
+            trip = recommendationModel.get_trip_between_two_cities(city1, city2)
 
+            # Return Data Check
             if not trip:
                 return jsonify({"message": "No trip found"}), 404
-
+            
             return jsonify(trip), 200
 
         except Exception as e:
-            return jsonify({"error": "An error occurred", "details": str(e)}), 500
+            return jsonify({"error": "An error occurred while fetching trips", "details": str(e)}), 500
 
         finally:
-            self.db.close_connections()
+                self.db.close_connections()
 
     def find_trip_between_two_cities_in_stops(self):
         try:
-            data = request.json
-            cities = data.get("cities")
-            stops = data.get("stops")
+            # Request Data
+            city1 = request.args.get("city1")
+            city2 = request.args.get("city2")
+            stops =request.args.get("stops")
 
-            if not cities:
-                return jsonify({"error": "Missing cities"}), 400
+            # Request Data Check
+            if not city1 or not city2:
+                return jsonify({"error": "Missing city1 or city2"}), 400
             if not stops:
                 return jsonify({"error": "Missing stops"}), 400
 
-            connection = self.db.connection()
+            # Pulling Data from Database
+            connection = self.db.get_connection()
             recommendationModel = RecommendationModel(connection)
-            trip = recommendationModel.get_trip_between_two_cities_in_stops(cities, stops)
+            trip = recommendationModel.get_trip_between_two_cities_in_stops(city1, city2, stops)
 
+            # Return Data Check
             if not trip:
                 return jsonify({"message": "No trip found"}), 404
-
+            
             return jsonify(trip), 200
 
         except Exception as e:
-            return jsonify({"error": "An error occurred", "details": str(e)}), 500
+            return jsonify({"error": "An error occurred while fetching trips", "details": str(e)}), 500
 
         finally:
             self.db.close_connections()
 
     def find_cities_within_stops(self):
         try:
-            data = request.json
-            city = data.get("city")
-            stops = data.get("stops")
+            # Request Data
+            city = request.args.get("city")
+            stops = request.args.get("stops")
 
-            if not city:
+            # Request Data Check
+            if not cities:
                 return jsonify({"error": "Missing city"}), 400
             if not stops:
                 return jsonify({"error": "Missing stops"}), 400
 
-            connection = self.db.connection()
+
+            # Pulling Data from Database
+            connection = self.db.get_connection()
             recommendationModel = RecommendationModel(connection)
             trip = recommendationModel.get_cities_within_stops(city, stops)
 
+            # Return Data Check
             if not trip:
                 return jsonify({"message": "No trip found"}), 404
-
+            
             return jsonify(trip), 200
 
         except Exception as e:
-            return jsonify({"error": "An error occurred", "details": str(e)}), 500
-
+            return jsonify({"error": "An error occurred while fetching cities", "details": str(e)}), 500
+        
         finally:
             self.db.close_connections()
 

@@ -1,5 +1,8 @@
+
+
 class AggregationModel:
     def __init__(self, db_connection):
+        # Variables
         self.db = db_connection
 
     def get_country_with_most_airports(self): 
@@ -8,6 +11,7 @@ class AggregationModel:
         """
         try:
             with self.db.cursor() as cursor:
+                # Querying Data
                 cursor.execute(
                     """
                         SELECT country, COUNT(*) as num_airports 
@@ -19,9 +23,10 @@ class AggregationModel:
                 )
                 country = cursor.fetchone()
 
+                # Checking Return Data
                 if not country:
                     return {"message": "No Country"}
-                
+
                 return country
 
         except Exception as e:
@@ -29,17 +34,18 @@ class AggregationModel:
 
     def get_cities_with_most_airlines(self, k): 
         """
-        Cities with Most Airlines.
+        Country with Most Airports.
         """
         try:
             with self.db.cursor() as cursor:
+                # Querying Data
                 cursor.execute(
                     """
                         SELECT city, COUNT(*) as total_routes
                         FROM (
-                            SELECT source_city AS city FROM routes
-                            UNION ALL
-                            SELECT destination_city AS city FROM routes
+                        SELECT `source airport` AS city FROM routes
+                        UNION ALL
+                        SELECT `destination airport` AS city FROM routes
                         ) AS all_routes
                         GROUP BY city
                         ORDER BY total_routes DESC
@@ -49,6 +55,7 @@ class AggregationModel:
                 )
                 cities = cursor.fetchall()
 
+                # Checking Return Data
                 if not cities:
                     return {"message": "Country has no cities"}
                 
