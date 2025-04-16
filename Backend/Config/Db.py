@@ -11,13 +11,12 @@ class Database:
     def __init__(self):
         self.connection = None
 
-    def connect_write(self):
+    def get_connection(self):
         # Check current connection
         if self.connection and self.connection.open:
             return self.connection
 
         # Establish connection with 3 tries
-        write_credentials = get_secret(self.write_secret_name, self.region_name)
         retries = 3
         while retries > 0:
             try:
@@ -29,7 +28,7 @@ class Database:
                     port=int(os.getenv("DB_PORT")),
                     cursorclass=pymysql.cursors.DictCursor
                 )
-                print("Write database connection established.")
+                print("Database connection established.")
                 return self.connection
             except Exception as e:
                 print(f"Error connecting to the write database: {e}")
@@ -40,4 +39,4 @@ class Database:
     def close_connections(self):
         if self.connection and self.connection.open:
             self.connection.close()
-            print("Write database connection closed.")
+            print("Database connection closed.")

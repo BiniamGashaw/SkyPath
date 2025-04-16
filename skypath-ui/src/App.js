@@ -3,6 +3,11 @@ import "./App.css";
 import planeLogo from "./logo3.webp";
 
 import airlines from "./data/airlines";
+import countries from "./data/countries";
+import airports from "./data/airports";
+import planes from "./data/planes";
+import routes from "./data/routes";
+
 import {
   filterByCountry,
   filterByStops,
@@ -11,6 +16,8 @@ import {
   filterBetweenCities,
   filterByTripStops,
   filterByDistance,
+  getAirportDensityByCountry,
+  getAirportTrafficByCity,
 } from "./utils/filters";
 
 // Reusable isolated section
@@ -49,16 +56,9 @@ function App() {
         </p>
       </div>
 
-      {/* Country */}
       <CountrySearch />
-
-      {/* Stops */}
       <StopsSearch />
-
-      {/* Code Share */}
       <CodeShareSearch />
-
-      {/* Active US */}
       <ActiveUSSearch />
 
       <div className="category">
@@ -66,11 +66,18 @@ function App() {
         <p>Search for information regarding multiple airports and airlines</p>
       </div>
 
-      {/* Density */}
       <InputSection
         output={
           airportDensity
-            ? ["🇺🇸 United States has the highest airport density (demo data)"]
+            ? (() => {
+                const top = getAirportDensityByCountry();
+                return top
+                  ? [
+                      `🌍 ${top.country} has the highest airport density (${top.count} airports)`,
+                    ]
+                  : ["No data available"];
+
+              })()
             : []
         }
       >
@@ -89,18 +96,10 @@ function App() {
             onChange={() => setAirportDensity(!airportDensity)}
           />{" "}
           Airport Density
-        
         </>
       </InputSection>
 
-      {/* Traffic */}
-      <InputSection
-        output={
-          airportTraffic
-            ? ["Top cities with most traffic (mock): New York, Dubai, Berlin"]
-            : []
-        }
-      >
+      <InputSection output={airportTraffic ? getAirportTrafficByCity() : []}>
         <>
           <h2>Directions:</h2>
           <p>
@@ -115,7 +114,6 @@ function App() {
             onChange={() => setAirportTraffic(!airportTraffic)}
           />{" "}
           Airport Traffic
-
         </>
       </InputSection>
 
@@ -124,16 +122,9 @@ function App() {
         <p>Search for the most optimal routes regarding your trip</p>
       </div>
 
-      {/* Routes */}
       <RouteSearch />
-
-      {/* Routes with limited stops */}
       <LimitedStopSearch />
-
-      {/* Distance reachable */}
       <ReachableSearch />
-
-      {/* Confirm trip */}
       <TripConfirm setResult={setResult} result={result} />
     </div>
   );
@@ -142,6 +133,7 @@ function App() {
 function CountrySearch() {
   const [country, setCountry] = useState("");
   const [output, setOutput] = useState([]);
+
   return (
     <InputSection output={output}>
       <>
@@ -179,6 +171,7 @@ function CountrySearch() {
 function StopsSearch() {
   const [stops, setStops] = useState("");
   const [output, setOutput] = useState([]);
+
   return (
     <InputSection output={output}>
       <>
@@ -209,6 +202,7 @@ function StopsSearch() {
     </InputSection>
   );
 }
+
 function CodeShareSearch() {
   const [checked, setChecked] = useState(false);
   const [output, setOutput] = useState([]);
@@ -218,7 +212,6 @@ function CodeShareSearch() {
     setChecked(nextChecked);
 
     const res = nextChecked ? filterByCodeShare(airlines) : [];
-
     setOutput(nextChecked ? res.map((a) => `${a.name} (Code Share)`) : []);
   };
 
@@ -245,6 +238,7 @@ function ActiveUSSearch() {
     const nextValue = !checked;
     setChecked(nextValue);
     const res = nextValue ? filterByActiveUS(airlines) : [];
+
     setOutput(nextValue ? res.map((a) => `${a.name} (Active US)`) : []);
   };
 
@@ -271,6 +265,7 @@ function RouteSearch() {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [output, setOutput] = useState([]);
+
   return (
     <InputSection output={output}>
       <>
@@ -315,6 +310,7 @@ function LimitedStopSearch() {
   const [to, setTo] = useState("");
   const [stops, setStops] = useState("");
   const [output, setOutput] = useState([]);
+
   return (
     <InputSection output={output}>
       <>
@@ -367,8 +363,9 @@ function LimitedStopSearch() {
 
 function ReachableSearch() {
   const [city, setCity] = useState("");
-  const [distance, setDistance] = useState("");
+  const [distance, setDistance] = useState(""); // Not used in filter currently
   const [output, setOutput] = useState([]);
+
   return (
     <InputSection output={output}>
       <>
@@ -379,8 +376,7 @@ function ReachableSearch() {
           </strong>
         </p>
         <p>
-          Details: A list of routes reachable from the departing city within the
-          given distance appears
+          Details: A list of routes reachable from the departing city appears
         </p>
         <input
           type="text"
@@ -396,7 +392,7 @@ function ReachableSearch() {
         />
         <button
           onClick={() => {
-            const res = filterByDistance(airlines, city);
+            const res = filterByDistance(airlines, city); // Assume filters handle distance
             setOutput(
               res.length
                 ? res.map(
@@ -457,7 +453,5 @@ function TripConfirm() {
     </InputSection>
   );
 }
-
-
 
 export default App;
