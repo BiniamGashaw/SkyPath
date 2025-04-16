@@ -82,10 +82,10 @@ body {
   padding: 1rem;
   border-radius: 10px;
   color: #003b5c;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
+  overflow-y: auto;
+  max-height: 300px;
+  text-align: left;
+  word-break: break-word;
 }
 .category {
   font-size: 1.5rem;
