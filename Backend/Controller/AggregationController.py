@@ -38,7 +38,7 @@ class AggregationController:
     def find_cities_with_most_airlines(self):
         try:
             # Request Data
-            k = int(request.args.get("k"))
+            k = request.args.get("k", default=5, type=int)
 
             # Request Data Check
             if not k:

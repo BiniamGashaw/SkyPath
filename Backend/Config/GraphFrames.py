@@ -13,5 +13,5 @@ class AirlineGraph:
             "Stops AS stops"
         )
 
-        self.graph = GraphFrame(self.vertices, self.edges)
+#        self.graph = GraphFrame(self.vertices, self.edges)
 

@@ -34,8 +34,9 @@ class AggregationModel:
 
     def get_cities_with_most_airlines(self, k): 
         """
-        Country with Most Airports.
+        City with Most Airlines.
         """
+        k = int(k) if k and str(k).isdigit() and int(k) > 0 else 5
         try:
             with self.db.cursor() as cursor:
                 # Querying Data
