@@ -28,3 +28,4 @@ class SparkConnector:
             .option("user", os.getenv("JDBC_USER")) \
             .option("password", os.getenv("JDBC_PASSWORD")) \
             .load()
+
