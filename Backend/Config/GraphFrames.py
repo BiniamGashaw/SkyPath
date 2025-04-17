@@ -1,5 +1,5 @@
 
-#from graphframes import GraphFrame
+from graphframes import GraphFrame
 from Config.Spark import SparkConnector
 
 class AirlineGraph:
@@ -13,5 +13,5 @@ class AirlineGraph:
             "Stops AS stops"
         )
 
-#        self.graph = GraphFrame(self.vertices, self.edges)
+        self.graph = GraphFrame(self.vertices, self.edges)
 

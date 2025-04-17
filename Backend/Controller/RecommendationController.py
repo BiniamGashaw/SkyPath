@@ -1,4 +1,4 @@
-'''from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request
 from Config.Db import Database
 from Model.RecommendationModel import RecommendationModel
 
@@ -80,7 +80,7 @@ class RecommendationController:
             stops = request.args.get("stops")
 
             # Request Data Check
-            if not cities:
+            if not city:
                 return jsonify({"error": "Missing city"}), 400
             if not stops:
                 return jsonify({"error": "Missing stops"}), 400
@@ -106,4 +106,3 @@ class RecommendationController:
 # Creating Instance
 recommendation_controller = RecommendationController()
 recommendation_blueprint = recommendation_controller.blueprint
-'''
