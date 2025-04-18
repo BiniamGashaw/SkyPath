@@ -26,5 +26,5 @@ export const filterByTripStops = (airlines, from, to, maxStops) =>
       a.stops < parseInt(maxStops)
   );
 
-export const filterByDistance = (airlines, fromCity) =>
+export const filterByHops = (airlines, fromCity) =>
   airlines.filter((a) => a.sourceCity.toLowerCase() === fromCity.toLowerCase());

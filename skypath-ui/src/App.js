@@ -10,7 +10,7 @@ import {
   filterByActiveUS,
   filterBetweenCities,
   filterByTripStops,
-  filterByDistance,
+  filterByHops,
 } from "./utils/filters";
 
 // Reusable isolated section
@@ -32,8 +32,7 @@ function InputSection({ children, output }) {
 function App() {
   const [airportDensity, setAirportDensity] = useState(false);
   const [airportTraffic, setAirportTraffic] = useState(false);
-  const [result, setResult] = useState(false);
-
+  
   return (
     <div className="app">
       <header className="header">
@@ -130,11 +129,9 @@ function App() {
       {/* Routes with limited stops */}
       <LimitedStopSearch />
 
-      {/* Distance reachable */}
+      {/* Hops reachable */}
       <ReachableSearch />
 
-      {/* Confirm trip */}
-      <TripConfirm setResult={setResult} result={result} />
     </div>
   );
 }
@@ -367,7 +364,7 @@ function LimitedStopSearch() {
 
 function ReachableSearch() {
   const [city, setCity] = useState("");
-  const [distance, setDistance] = useState("");
+  const [hops, setHops] = useState("");
   const [output, setOutput] = useState([]);
   return (
     <InputSection output={output}>
@@ -390,13 +387,13 @@ function ReachableSearch() {
         />
         <input
           type="number"
-          value={distance}
-          onChange={(e) => setDistance(e.target.value)}
-          placeholder="Distance"
+          value={hops}
+          onChange={(e) => setHops(e.target.value)}
+          placeholder="Hops"
         />
         <button
           onClick={() => {
-            const res = filterByDistance(airlines, city);
+            const res = filterByHops(airlines, city);
             setOutput(
               res.length
                 ? res.map(
