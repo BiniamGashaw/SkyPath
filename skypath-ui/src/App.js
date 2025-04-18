@@ -2,16 +2,6 @@ import React, { useState } from "react";
 import "./App.css";
 import planeLogo from "./logo3.webp";
 
-import airlines from "./data/airlines";
-import {
-  filterByCountry,
-  filterByStops,
-  filterByCodeShare,
-  filterByActiveUS,
-  filterBetweenCities,
-  filterByTripStops,
-  filterByHops,
-} from "./utils/filters";
 
 // Reusable isolated section
 function InputSection({ children, output }) {
@@ -30,8 +20,11 @@ function InputSection({ children, output }) {
 }
 
 function App() {
+  const [outputDensity, setOutputDensity] = useState([]);
   const [airportDensity, setAirportDensity] = useState(false);
   const [airportTraffic, setAirportTraffic] = useState(false);
+  const [outputTraffic, setOutputTraffic] = useState([]);
+
   
   return (
     <div className="app">
@@ -66,13 +59,7 @@ function App() {
       </div>
 
       {/* Density */}
-      <InputSection
-        output={
-          airportDensity
-            ? ["🇺🇸 United States has the highest airport density (demo data)"]
-            : []
-        }
-      >
+      <InputSection output={outputDensity}>
         <>
           <h2>Directions:</h2>
           <p>
@@ -85,21 +72,30 @@ function App() {
           <input
             type="checkbox"
             checked={airportDensity}
-            onChange={() => setAirportDensity(!airportDensity)}
+            onChange={() => {
+              setAirportDensity(!airportDensity);
+              if (!airportDensity) {
+                fetch(
+                  "http://localhost:5000/aggregation/Find_Country_With_Most_Airports"
+                )
+                  .then((res) => res.json())
+                  .then((data) => {
+                    setOutputDensity([
+                      `🌎 ${data.country} has the most airports`,
+                    ]);
+                  })
+                  .catch(() => setOutputDensity(["Error fetching data"]));
+              } else {
+                setOutputDensity([]);
+              }
+            }}
           />{" "}
           Airport Density
-        
         </>
       </InputSection>
 
       {/* Traffic */}
-      <InputSection
-        output={
-          airportTraffic
-            ? ["Top cities with most traffic (mock): New York, Dubai, Berlin"]
-            : []
-        }
-      >
+      <InputSection output={airportTraffic ? outputTraffic : []}>
         <>
           <h2>Directions:</h2>
           <p>
@@ -111,10 +107,36 @@ function App() {
           <input
             type="checkbox"
             checked={airportTraffic}
-            onChange={() => setAirportTraffic(!airportTraffic)}
+            onChange={() => {
+              const newValue = !airportTraffic;
+              setAirportTraffic(newValue);
+
+              if (newValue) {
+                fetch(
+                  "http://localhost:5000/aggregation/Find_Cities_With_Most_Airlines?k=5"
+                )
+                  .then((res) => res.json())
+                  .then((data) => {
+                    if (Array.isArray(data)) {
+                      setOutputTraffic(
+                        data.map(
+                          (entry) =>
+                            `${entry.city}: ${entry.total_routes} routes`
+                        )
+                      );
+                    } else {
+                      setOutputTraffic(["No data returned"]);
+                    }
+                  })
+                  .catch(() => {
+                    setOutputTraffic(["Error fetching data"]);
+                  });
+              } else {
+                setOutputTraffic([]);
+              }
+            }}
           />{" "}
           Airport Traffic
-
         </>
       </InputSection>
 
@@ -131,7 +153,6 @@ function App() {
 
       {/* Hops reachable */}
       <ReachableSearch />
-
     </div>
   );
 }
@@ -139,6 +160,7 @@ function App() {
 function CountrySearch() {
   const [country, setCountry] = useState("");
   const [output, setOutput] = useState([]);
+
   return (
     <InputSection output={output}>
       <>
@@ -150,20 +172,41 @@ function CountrySearch() {
           Details: A list of all airlines operating in the input country is
           listed
         </p>
+
         <input
           type="text"
           value={country}
           onChange={(e) => setCountry(e.target.value)}
           placeholder="Input country"
         />
+
         <button
           onClick={() => {
-            const res = filterByCountry(airlines, country);
-            setOutput(
-              res.length
-                ? res.map((a) => `${a.name} (${a.country})`)
-                : [`No airlines found for ${country}`]
-            );
+            fetch(
+              `http://localhost:5000/search/Find_Airport_By_Country?country=${encodeURIComponent(
+                country
+              )}`
+            )
+              .then((res) => {
+                if (!res.ok) {
+                  throw new Error(`Server responded with ${res.status}`);
+                }
+                return res.json();
+              })
+              .then((data) => {
+                console.log("✅ API response:", data);
+                if (Array.isArray(data) && data.length > 0) {
+                  setOutput(data.map((a) => `${a.name} (${a.city})`));
+                } else if (Array.isArray(data)) {
+                  setOutput([`No airports found for ${country}`]);
+                } else {
+                  setOutput([data.message || "Unexpected response"]);
+                }
+              })
+              .catch((err) => {
+                console.error("❌ Fetch error:", err);
+                setOutput(["An error occurred."]);
+              });
           }}
         >
           Search
@@ -173,9 +216,11 @@ function CountrySearch() {
   );
 }
 
+
 function StopsSearch() {
   const [stops, setStops] = useState("");
   const [output, setOutput] = useState([]);
+
   return (
     <InputSection output={output}>
       <>
@@ -192,12 +237,18 @@ function StopsSearch() {
         />
         <button
           onClick={() => {
-            const res = filterByStops(airlines, stops);
-            setOutput(
-              res.length
-                ? res.map((a) => `${a.name} - ${a.stops} stops`)
-                : [`No airlines with ${stops} stops`]
-            );
+            fetch(
+              `http://localhost:5000/search/Find_Airlines_By_Stop?stops=${stops}`
+            )
+              .then((res) => res.json())
+              .then((data) => {
+                if (Array.isArray(data)) {
+                  setOutput(data.map((a) => `${a.airline}`));
+                } else {
+                  setOutput([data.message || "No data returned"]);
+                }
+              })
+              .catch(() => setOutput(["An error occurred."]));
           }}
         >
           Search
@@ -206,6 +257,7 @@ function StopsSearch() {
     </InputSection>
   );
 }
+
 function CodeShareSearch() {
   const [checked, setChecked] = useState(false);
   const [output, setOutput] = useState([]);
@@ -214,9 +266,21 @@ function CodeShareSearch() {
     const nextChecked = !checked;
     setChecked(nextChecked);
 
-    const res = nextChecked ? filterByCodeShare(airlines) : [];
+    if (!nextChecked) {
+      setOutput([]);
+      return;
+    }
 
-    setOutput(nextChecked ? res.map((a) => `${a.name} (Code Share)`) : []);
+    fetch("http://localhost:5000/search/Find_Airlines_With_Code_Share")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setOutput(data.map((a) => `${a.airline}`));
+        } else {
+          setOutput([data.message || "No data returned"]);
+        }
+      })
+      .catch(() => setOutput(["An error occurred."]));
   };
 
   return (
@@ -234,15 +298,30 @@ function CodeShareSearch() {
   );
 }
 
+
 function ActiveUSSearch() {
   const [checked, setChecked] = useState(false);
   const [output, setOutput] = useState([]);
 
   const handleToggle = () => {
-    const nextValue = !checked;
-    setChecked(nextValue);
-    const res = nextValue ? filterByActiveUS(airlines) : [];
-    setOutput(nextValue ? res.map((a) => `${a.name} (Active US)`) : []);
+    const nextChecked = !checked;
+    setChecked(nextChecked);
+
+    if (!nextChecked) {
+      setOutput([]);
+      return;
+    }
+
+    fetch("http://localhost:5000/search/Find_Active_Airlines_In_United_State")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setOutput(data.map((a) => `${a.airline}`));
+        } else {
+          setOutput([data.message || "No data returned"]);
+        }
+      })
+      .catch(() => setOutput(["An error occurred."]));
   };
 
   return (
@@ -264,18 +343,41 @@ function ActiveUSSearch() {
   );
 }
 
+
 function RouteSearch() {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [output, setOutput] = useState([]);
+
+  const formatRoute = (route, index) => {
+    const from = route["from"];
+    const to = route["to"];
+    const e0 = route["e0"];
+    const v1 = route["v1"];
+    const e1 = route["e1"];
+
+    if (from && to && e0 && !e1) {
+      // Direct flight
+      return `${index + 1}. From ${from.city} (${from.id}) to ${to.city} (${
+        to.id
+      }) via airline ${e0.airline}`;
+    } else if (from && to && e0 && e1 && v1) {
+      // 1-stop trip
+      return `${index + 1}. From ${from.city} (${from.id}) to ${v1.city} (${
+        v1.id
+      }) via ${e0.airline}, then to ${to.city} (${to.id}) via ${e1.airline}`;
+    } else {
+      return `${index + 1}. Invalid route data`;
+    }
+  };
+
+
   return (
     <InputSection output={output}>
       <>
         <h2>Directions:</h2>
         <p>
-          <strong>
-            Enter the two cities to find a trip that connects them
-          </strong>
+          <strong>Enter the two cities to find a trip that connects them</strong>
         </p>
         <p>Details: A list of routes that connects two cities will appear</p>
         <input
@@ -292,12 +394,39 @@ function RouteSearch() {
         />
         <button
           onClick={() => {
-            const res = filterBetweenCities(airlines, from, to);
-            setOutput(
-              res.length
-                ? res.map((a) => `${a.name} connects ${from} → ${to}`)
-                : [`No routes from ${from} to ${to}`]
-            );
+            fetch(
+              `http://localhost:5000/recommendation/Find_Trip_Between_Two_Cities?city1=${encodeURIComponent(
+                from
+              )}&city2=${encodeURIComponent(to)}`
+            )
+              .then((res) => res.json())
+              .then((data) => {
+                console.log("RouteSearch response:", data);
+
+                if (Array.isArray(data)) {
+                  setOutput(
+                    data.map((route, i) => {
+                      const fromCity = route.from?.city || "Unknown";
+                      const fromId = route.from?.id || "??";
+
+                      const toCity = route.to?.city || "Unknown";
+                      const toId = route.to?.id || "??";
+
+                      const airline1 = route.e0?.airline || "??";
+                      const midCity = route.v1?.city || "Unknown";
+                      const airline2 = route.e1?.airline || "??";
+
+                      return `${
+                        i + 1
+                      }. From ${fromCity} (${fromId}) to ${midCity} via airline ${airline1}, then to ${toCity} (${toId}) via airline ${airline2}`;
+                    })
+                  );
+                } else {
+                  setOutput([data.message || "No routes found"]);
+                }
+              })
+
+              .catch(() => setOutput(["An error occurred."]));
           }}
         >
           Search
@@ -306,6 +435,7 @@ function RouteSearch() {
     </InputSection>
   );
 }
+
 
 function LimitedStopSearch() {
   const [from, setFrom] = useState("");
@@ -345,14 +475,27 @@ function LimitedStopSearch() {
         />
         <button
           onClick={() => {
-            const res = filterByTripStops(airlines, from, to, stops);
-            setOutput(
-              res.length
-                ? res.map(
-                    (a) => `${a.name} - ${a.stops} stops from ${from} → ${to}`
-                  )
-                : [`No routes under ${stops} stops between ${from} and ${to}`]
-            );
+            fetch(
+              `http://localhost:5000/recommendation/Find_Trip_Between_Two_Cities_In_Stops?city1=${encodeURIComponent(
+                from
+              )}&city2=${encodeURIComponent(to)}&stops=${stops}`
+            )
+              .then((res) => res.json())
+              .then((data) => {
+                if (Array.isArray(data)) {
+                  setOutput(
+                    data.map(
+                      (trip, i) =>
+                        `${i + 1}. ${trip.source_city} → ${
+                          trip.destination_city
+                        } via ${trip.airline} (${trip.stops} stops)`
+                    )
+                  );
+                } else {
+                  setOutput([data.message || "No route found"]);
+                }
+              })
+              .catch(() => setOutput(["Error fetching routes"]));
           }}
         >
           Search
@@ -393,14 +536,31 @@ function ReachableSearch() {
         />
         <button
           onClick={() => {
-            const res = filterByHops(airlines, city);
-            setOutput(
-              res.length
-                ? res.map(
-                    (a) => `${a.name} can reach ${a.destCity} from ${city}`
-                  )
-                : [`No cities reachable from ${city}`]
-            );
+            fetch(
+              `http://localhost:5000/recommendation/Find_Cities_Within_Stops?city=${encodeURIComponent(
+                city
+              )}&stops=${hops}`
+            )
+              .then((res) => res.json())
+              .then((data) => {
+                console.log(data); 
+                if (Array.isArray(data)) {
+                  data.forEach((item, index) =>
+                    console.log(`Item ${index}:`, item)
+                  );
+
+                  setOutput(
+                    data.map((d, i) => {
+                      const city =
+                        d.city || d.destination || d.to_city || d.name || d.id;
+                      return `${i + 1}. ${city}`;
+                    })
+                  );
+                } else {
+                  setOutput([data.message || "No cities found"]);
+                }
+              })
+              .catch(() => setOutput(["Error fetching reachable cities"]));
           }}
         >
           Search

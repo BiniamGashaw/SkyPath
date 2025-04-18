@@ -27,6 +27,7 @@ class RecommendationController:
             connection = self.db.get_connection()
             recommendationModel = RecommendationModel(connection)
             trip = recommendationModel.get_trip_between_two_cities(city1, city2)
+            print("🚀 Trip Result:", trip)
 
             if not trip:
                 return jsonify({"message": "No trip found"}), 404
