@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from Config.Db import Database
 from Model.RecommendationModel import RecommendationModel
-
+import traceback
 class RecommendationController:
     """
     Controller for Aggregation.
@@ -18,31 +18,29 @@ class RecommendationController:
 
     def find_trip_between_two_cities(self):
         try:
-            # Request Data
             city1 = request.args.get("city1")
             city2 = request.args.get("city2")
 
-            # Request Data Check
             if not city1 or not city2:
                 return jsonify({"error": "Missing city1 or city2"}), 400
 
-            # Pulling Data from Database
             connection = self.db.get_connection()
             recommendationModel = RecommendationModel(connection)
             trip = recommendationModel.get_trip_between_two_cities(city1, city2)
 
-            # Return Data Check
             if not trip:
                 return jsonify({"message": "No trip found"}), 404
-            
+
             return jsonify(trip), 200
 
         except Exception as e:
+            print("❌ Exception:", e)
+            traceback.print_exc()
             return jsonify({"error": "An error occurred while fetching trips", "details": str(e)}), 500
 
         finally:
-                self.db.close_connections()
-
+            self.db.close_connections()
+            
     def find_trip_between_two_cities_in_stops(self):
         try:
             # Request Data

@@ -2,13 +2,16 @@ from pyspark.sql import SparkSession
 from dotenv import load_dotenv
 import os
 
-load_dotenv() 
+load_dotenv()
 
 class SparkConnector:
     def __init__(self):
+        jar_path = os.path.join(os.getcwd(), os.getenv("MYSQL_JAR_PATH"))
+
         self.spark = SparkSession.builder \
-            .appName("AirlineGraph") \
-            .config("spark.jars.packages", "mysql:mysql-connector-java:8.0.33,graphframes:graphframes:0.8.2-spark3.1-s_2.12") \
+            .appName("SkyPathApp") \
+            .config("spark.jars", jar_path) \
+            .config("spark.jars.packages", "graphframes:graphframes:0.8.2-spark3.1-s_2.12") \
             .getOrCreate()
 
         self.airports = self.spark.read \
@@ -28,4 +31,3 @@ class SparkConnector:
             .option("user", os.getenv("JDBC_USER")) \
             .option("password", os.getenv("JDBC_PASSWORD")) \
             .load()
-

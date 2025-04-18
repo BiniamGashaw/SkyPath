@@ -375,12 +375,12 @@ function ReachableSearch() {
         <h2>Directions:</h2>
         <p>
           <strong>
-            Enter the departing city and the search area distance (in miles)
+            Enter the departing city and the amount of hops wanted.
           </strong>
         </p>
         <p>
-          Details: A list of routes reachable from the departing city within the
-          given distance appears
+          Details: A list of cities reachable from the departing city within the
+          given amount of hops appears
         </p>
         <input
           type="text"
@@ -404,51 +404,6 @@ function ReachableSearch() {
                   )
                 : [`No cities reachable from ${city}`]
             );
-          }}
-        >
-          Search
-        </button>
-      </>
-    </InputSection>
-  );
-}
-
-function TripConfirm() {
-  const [from, setFrom] = useState("");
-  const [to, setTo] = useState("");
-  const [output, setOutput] = useState([]);
-
-  return (
-    <InputSection output={output}>
-      <>
-        <h2>Directions:</h2>
-        <p>
-          <strong>
-            Enter the two cities to check if a trip that connects them is
-            possible
-          </strong>
-        </p>
-        <p>
-          Details: A yes or no will appear notifying if there is a route between
-          the two cities
-        </p>
-        <input
-          type="text"
-          value={from}
-          onChange={(e) => setFrom(e.target.value)}
-          placeholder="City departing"
-        />
-        <input
-          type="text"
-          value={to}
-          onChange={(e) => setTo(e.target.value)}
-          placeholder="City arriving"
-        />
-        <button
-          onClick={() => {
-            const res = filterBetweenCities(airlines, from, to);
-            const exists = res.length > 0;
-            setOutput([exists ? "✅ Route exists" : "❌ No direct route"]);
           }}
         >
           Search
