@@ -275,7 +275,7 @@ function CodeShareSearch() {
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
-          setOutput(data.map((a) => `${a.airline}`));
+          setOutput(data.map((a) =>`${a.airline}`));
         } else {
           setOutput([data.message || "No data returned"]);
         }
@@ -316,7 +316,7 @@ function ActiveUSSearch() {
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
-          setOutput(data.map((a) => `${a.airline}`));
+          setOutput(data.map((a) =>`${a.airline}`));
         } else {
           setOutput([data.message || "No data returned"]);
         }
@@ -349,27 +349,6 @@ function RouteSearch() {
   const [to, setTo] = useState("");
   const [output, setOutput] = useState([]);
 
-  const formatRoute = (route, index) => {
-    const from = route["from"];
-    const to = route["to"];
-    const e0 = route["e0"];
-    const v1 = route["v1"];
-    const e1 = route["e1"];
-
-    if (from && to && e0 && !e1) {
-      // Direct flight
-      return `${index + 1}. From ${from.city} (${from.id}) to ${to.city} (${
-        to.id
-      }) via airline ${e0.airline}`;
-    } else if (from && to && e0 && e1 && v1) {
-      // 1-stop trip
-      return `${index + 1}. From ${from.city} (${from.id}) to ${v1.city} (${
-        v1.id
-      }) via ${e0.airline}, then to ${to.city} (${to.id}) via ${e1.airline}`;
-    } else {
-      return `${index + 1}. Invalid route data`;
-    }
-  };
 
 
   return (
