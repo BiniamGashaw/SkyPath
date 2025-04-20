@@ -18,7 +18,6 @@ function InputSection({ children, output }) {
     </div>
   );
 }
-
 function App() {
   const [outputDensity, setOutputDensity] = useState([]);
   const [airportDensity, setAirportDensity] = useState(false);
@@ -349,14 +348,14 @@ function RouteSearch() {
   const [to, setTo] = useState("");
   const [output, setOutput] = useState([]);
 
-
-
   return (
     <InputSection output={output}>
       <>
         <h2>Directions:</h2>
         <p>
-          <strong>Enter the two cities to find a trip that connects them</strong>
+          <strong>
+            Enter the two cities to find a trip that connects them
+          </strong>
         </p>
         <p>Details: A list of routes that connects two cities will appear</p>
         <input
@@ -383,28 +382,27 @@ function RouteSearch() {
                 console.log("RouteSearch response:", data);
 
                 if (Array.isArray(data)) {
-                  setOutput(
-                    data.map((route, i) => {
-                      const fromCity = route.from?.city || "Unknown";
-                      const fromId = route.from?.id || "??";
+                  const formattedRoutes = data.map((route, i) => {
+                    const from = route.from || ["?", "?", "?", "?"];
+                    const to = route.to || ["?", "?", "?", "?"];
+                    const v1 = route.v1 || ["?", "?", "?", "?"];
+                    const e0 = route.e0 || ["?", "?", "?", "?"];
+                    const e1 = route.e1 || ["?", "?", "?", "?"];
 
-                      const toCity = route.to?.city || "Unknown";
-                      const toId = route.to?.id || "??";
+                    return `Route ${i + 1}: From ${from[2]} (${
+                      from[0]
+                    }) → Midpoint: ${v1[2]} (${v1[0]}) → To: ${to[2]} (${
+                      to[0]
+                    }) | Leg 1: ${e0[0]} to ${e0[1]} via ${e0[2]} | Leg 2: ${
+                      e1[0]
+                    } to ${e1[1]} via ${e1[2]}`;
+                  });
 
-                      const airline1 = route.e0?.airline || "??";
-                      const midCity = route.v1?.city || "Unknown";
-                      const airline2 = route.e1?.airline || "??";
-
-                      return `${
-                        i + 1
-                      }. From ${fromCity} (${fromId}) to ${midCity} via airline ${airline1}, then to ${toCity} (${toId}) via airline ${airline2}`;
-                    })
-                  );
+                  setOutput(formattedRoutes);
                 } else {
                   setOutput([data.message || "No routes found"]);
                 }
               })
-
               .catch(() => setOutput(["An error occurred."]));
           }}
         >
@@ -416,11 +414,13 @@ function RouteSearch() {
 }
 
 
+
 function LimitedStopSearch() {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [stops, setStops] = useState("");
   const [output, setOutput] = useState([]);
+
   return (
     <InputSection output={output}>
       <>
@@ -455,26 +455,37 @@ function LimitedStopSearch() {
         <button
           onClick={() => {
             fetch(
-              `http://localhost:5000/recommendation/Find_Trip_Between_Two_Cities_In_Stops?city1=${encodeURIComponent(
+              `http://localhost:5000/recommendation/Find_Cities_Within_Stops?city=${encodeURIComponent(
                 from
-              )}&city2=${encodeURIComponent(to)}&stops=${stops}`
+              )}&stops=${encodeURIComponent(stops)}`
             )
               .then((res) => res.json())
               .then((data) => {
+                console.log("TripStopsSearch response:", data);
+
                 if (Array.isArray(data)) {
-                  setOutput(
-                    data.map(
-                      (trip, i) =>
-                        `${i + 1}. ${trip.source_city} → ${
-                          trip.destination_city
-                        } via ${trip.airline} (${trip.stops} stops)`
-                    )
-                  );
+                  const formattedRoutes = data.map((route, i) => {
+                    const from = route.from || ["?", "?", "?", "?"];
+                    const to = route.to || ["?", "?", "?", "?"];
+                    const v1 = route.v1 || ["?", "?", "?", "?"];
+                    const e0 = route.e0 || ["?", "?", "?", "?"];
+                    const e1 = route.e1 || ["?", "?", "?", "?"];
+
+                    return `Route ${i + 1}: From ${from[2]} (${
+                      from[0]
+                    }) → Midpoint: ${v1[2]} (${v1[0]}) → To: ${to[2]} (${
+                      to[0]
+                    }) | Leg 1: ${e0[0]} to ${e0[1]} via ${e0[2]} | Leg 2: ${
+                      e1[0]
+                    } to ${e1[1]} via ${e1[2]}`;
+                  });
+
+                  setOutput(formattedRoutes);
                 } else {
-                  setOutput([data.message || "No route found"]);
+                  setOutput([data.message || "No routes found"]);
                 }
               })
-              .catch(() => setOutput(["Error fetching routes"]));
+              .catch(() => setOutput(["An error occurred."]));
           }}
         >
           Search
@@ -483,6 +494,7 @@ function LimitedStopSearch() {
     </InputSection>
   );
 }
+
 
 function ReachableSearch() {
   const [city, setCity] = useState("");
