@@ -95,7 +95,7 @@ class SearchController:
             # Pulling Data from Database
             connection = self.db.get_connection()
             searchModel = SearchModel(connection)
-            airlines = searchModel.get_airlines_with_code_share()
+            airlines = searchModel.get_active_airlines_in_united_state()
 
             # Return Data Check
             if not airlines:
