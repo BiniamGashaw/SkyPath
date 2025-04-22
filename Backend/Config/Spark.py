@@ -8,10 +8,9 @@ class SparkConnector:
     def __init__(self):
         import os
 
-# Correct path based on where the script is running
-        jar_path = "/Users/biniam/CS431/SkyPath/Backend/lib/mysql-connector-j-9.3.0.jar"
-# or better: dynamically resolve it from the script’s directory
-# jar_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../lib/mysql-connector-j-9.3.0.jar"))
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        jar_path = os.path.join(base_dir, "..", "lib", "mysql-connector-j-9.3.0.jar")
+
 
         print("✅ FINAL JDBC JAR PATH:", jar_path)
 
