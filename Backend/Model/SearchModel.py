@@ -62,7 +62,11 @@ class SearchModel:
                 # Querying Data
                 cursor.execute(
                     """
-                    SELECT DISTINCT airline FROM routes WHERE codeshare = 'Y';
+                    SELECT DISTINCT r.airline, air.name
+                    FROM routes r
+                    INNER JOIN airlines air
+                    ON r.airline = air.iata
+                    WHERE r.codeshare = 'Y';
                     """
                 )
                 airlines = cursor.fetchall()
@@ -76,6 +80,8 @@ class SearchModel:
         except Exception as e:
             return {"error": "An error occurred while fetching airlines", "details": str(e)}
 
+
+
     def get_active_airlines_in_united_state(self): 
         """
         Active Airlines in United States.
@@ -85,7 +91,7 @@ class SearchModel:
                 # Querying Data
                 cursor.execute(
                     """
-                    SELECT * FROM airlines WHERE active = 'Y' AND country = 'United States';
+                    SELECT name FROM airlines WHERE active = 'Y' AND country = 'United States';
                     """
                 )
                 airlines = cursor.fetchall()

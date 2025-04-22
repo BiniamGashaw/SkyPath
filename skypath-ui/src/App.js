@@ -101,41 +101,48 @@ function App() {
             <strong>Airport Traffic</strong>
           </p>
           <p>
-            Details: The cities with the most incoming/outgoing airlines appear
+            Details: The top N cities with the most incoming/outgoing airlines
+            appear
           </p>
           <input
-            type="checkbox"
-            checked={airportTraffic}
-            onChange={() => {
-              const newValue = !airportTraffic;
-              setAirportTraffic(newValue);
-
-              if (newValue) {
-                fetch(
-                  "http://localhost:5000/aggregation/Find_Cities_With_Most_Airlines?k=5"
-                )
-                  .then((res) => res.json())
-                  .then((data) => {
-                    if (Array.isArray(data)) {
-                      setOutputTraffic(
-                        data.map(
-                          (entry) =>
-                            `${entry.city}: ${entry.total_routes} routes`
-                        )
-                      );
-                    } else {
-                      setOutputTraffic(["No data returned"]);
-                    }
-                  })
-                  .catch(() => {
-                    setOutputTraffic(["Error fetching data"]);
-                  });
-              } else {
-                setOutputTraffic([]);
+            type="number"
+            min="1"
+            placeholder="Enter number of cities"
+            onChange={(e) => {
+              const value = e.target.value;
+              if (!value || isNaN(value) || Number(value) <= 0) {
+                setOutputTraffic([
+                  "Please enter a valid number greater than 0",
+                ]);
+                setAirportTraffic(false);
+                return;
               }
+
+              setAirportTraffic(true);
+
+              fetch(
+                `http://localhost:5000/aggregation/Find_Cities_With_Most_Airlines?k=${value}`
+              )
+                .then((res) => res.json())
+                .then((data) => {
+                  if (Array.isArray(data)) {
+                    setOutputTraffic(
+                      data.map(
+                        (entry, i) =>
+                          `${i + 1}. ${entry.city}: ${
+                            entry.total_routes
+                          } routes`
+                      )
+                    );
+                  } else {
+                    setOutputTraffic(["No data returned"]);
+                  }
+                })
+                .catch(() => {
+                  setOutputTraffic(["Error fetching data"]);
+                });
             }}
-          />{" "}
-          Airport Traffic
+          />
         </>
       </InputSection>
 
@@ -274,7 +281,9 @@ function CodeShareSearch() {
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
-          setOutput(data.map((a) =>`${a.airline}`));
+          setOutput(
+            data.map((a, i) => `${i + 1}. ${a.name} (${a.airline})`)
+          );
         } else {
           setOutput([data.message || "No data returned"]);
         }
@@ -290,8 +299,8 @@ function CodeShareSearch() {
           <strong>Check mark if code share is wanted</strong>
         </p>
         <p>Details: A list of airlines operating with code share appears</p>
-        <input type="checkbox" checked={checked} onChange={handleToggle} /> Code
-        Share
+        <input type="checkbox" checked={checked} onChange={handleToggle} />{" "}
+        Code Share
       </>
     </InputSection>
   );
@@ -315,7 +324,8 @@ function ActiveUSSearch() {
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
-          setOutput(data.map((a) =>`${a.airline}`));
+          // Since you're now only selecting the name column
+          setOutput(data.map((a, i) => `${i + 1}. ${a.name || a[0]}`));
         } else {
           setOutput([data.message || "No data returned"]);
         }
@@ -341,6 +351,7 @@ function ActiveUSSearch() {
     </InputSection>
   );
 }
+
 
 
 function RouteSearch() {
