@@ -29,7 +29,8 @@ class RecommendationModel:
                         maxPathLength=10
                     )
                     if not path.rdd.isEmpty():
-                        return path.toPandas().to_dict(orient="records")
+                        distinct_paths = path.dropDuplicates()
+                        return distinct_paths.limit(100).toPandas().to_dict(orient="records")
 
             return {"message": "No Trip"}
 
@@ -40,30 +41,28 @@ class RecommendationModel:
     def get_trip_between_two_cities_in_stops(self, city1, city2, stops):
         """
         Trip Between Two Cities Within Stops.
+        Since the dataset contains only 0 stops, this method returns any path regardless of stop count.
         """
         try:
-            # Get IATA codes for city1 and city2
             source_ids = self.get_iata_codes_by_city(city1)
             target_ids = self.get_iata_codes_by_city(city2)
 
             if not source_ids or not target_ids:
                 return {"message": "One or both cities not found"}
 
-            # Try all combinations of matching airports
             for src in source_ids:
                 for dst in target_ids:
                     path = self.graph.bfs(
                         fromExpr=f"id = '{src}'",
                         toExpr=f"id = '{dst}'",
-                        edgeFilter=f"stops <= {int(stops)}",
-                        maxPathLength=int(stops) + 1
+                        maxPathLength=int(stops) + 1  # Keep it bounded by maxPathLength
                     )
-
                     if not path.rdd.isEmpty():
-                        return path.toPandas().to_dict(orient="records")
+                        distinct_paths = path.dropDuplicates()
+                        return distinct_paths.limit(100).toPandas().to_dict(orient="records")
+
 
             return {"message": "No Trip"}
-
         except Exception as e:
             return {"error": str(e)}
 

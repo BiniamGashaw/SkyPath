@@ -469,34 +469,32 @@ function LimitedStopSearch() {
         <button
           onClick={() => {
             fetch(
-              `http://localhost:5000/recommendation/Find_Cities_Within_Stops?city=${encodeURIComponent(
+              `http://localhost:5000/recommendation/Find_Trip_Between_Two_Cities_In_Stops?city1=${encodeURIComponent(
                 from
-              )}&stops=${encodeURIComponent(stops)}`
+              )}&city2=${encodeURIComponent(to)}&stops=${encodeURIComponent(
+                stops
+              )}`
             )
               .then((res) => res.json())
               .then((data) => {
-                console.log("TripStopsSearch response:", data);
-
                 if (Array.isArray(data)) {
-                  const formattedRoutes = data.map((route, i) => {
-                    const from = route.from || ["?", "?", "?", "?"];
-                    const to = route.to || ["?", "?", "?", "?"];
-                    const v1 = route.v1 || ["?", "?", "?", "?"];
-                    const e0 = route.e0 || ["?", "?", "?", "?"];
-                    const e1 = route.e1 || ["?", "?", "?", "?"];
+                  const formatted = data.map((route, i) => {
+                    const from = route.from.join(" | ");
+                    const to = route.to.join(" | ");
+                    const e0 = route.e0 ? route.e0.join(" | ") : "Direct";
+                    const e1 = route.e1 ? route.e1.join(" | ") : null;
 
-                    return `Route ${i + 1}: From ${from[2]} (${
-                      from[0]
-                    }) → Midpoint: ${v1[2]} (${v1[0]}) → To: ${to[2]} (${
-                      to[0]
-                    }) | Leg 1: ${e0[0]} to ${e0[1]} via ${e0[2]} | Leg 2: ${
-                      e1[0]
-                    } to ${e1[1]} via ${e1[2]}`;
+                    let result = `Route ${
+                      i + 1
+                    }:\nFrom: ${from}\nTo: ${to}\nLeg 1: ${e0}`;
+                    if (e1) {
+                      result += `\nLeg 2: ${e1}`;
+                    }
+                    return result;
                   });
-
-                  setOutput(formattedRoutes);
+                  setOutput(formatted);
                 } else {
-                  setOutput([data.message || "No routes found"]);
+                  setOutput([data.message || "No trip found"]);
                 }
               })
               .catch(() => setOutput(["An error occurred."]));
