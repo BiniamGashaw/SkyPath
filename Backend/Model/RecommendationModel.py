@@ -67,17 +67,13 @@ class RecommendationModel:
             return {"error": str(e)}
 
 
-    def get_cities_within_stops(self, city, stops):
-        """
-        Cities Within Stops of City.
-        """
+    def get_nearby_airports_within_stops(self, city, stops):
         try:
             source_ids = self.get_iata_codes_by_city(city)
-
             if not source_ids:
                 return {"message": "City not found"}
 
-            all_paths = []
+            all_to_airports = []
 
             for src in source_ids:
                 path = self.graph.bfs(
@@ -87,13 +83,29 @@ class RecommendationModel:
                 )
 
                 if not path.rdd.isEmpty():
-                    subset = path.select("from.id", "to.id").distinct().toPandas().to_dict(orient="records")
-                    all_paths.extend(subset)
+                    results = path.select("to").distinct().rdd.map(lambda row: row["to"]).collect()
+                    all_to_airports.extend(results)
 
-            if not all_paths:
-                return {"message": "No Trip"}
+            # If no paths, fallback to showing airports within the city itself
+            if not all_to_airports:
+                return self.graph.vertices.filter(f"city = '{city}'") \
+                    .select("name", "id", "country") \
+                    .rdd.map(lambda row: {
+                        "airport": row["name"],
+                        "iata": row["id"],
+                        "country": row["country"]
+                    }).collect()
 
-            return all_paths
+            # De-duplicate by airport id
+            seen = set()
+            unique_airports = []
+            for a in all_to_airports:
+                if a["id"] not in seen:
+                    seen.add(a["id"])
+                    unique_airports.append(a)
+
+            return unique_airports
 
         except Exception as e:
             return {"error": str(e)}
+

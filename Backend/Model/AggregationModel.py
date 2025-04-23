@@ -42,15 +42,17 @@ class AggregationModel:
                 # Querying Data
                 cursor.execute(
                     """
-                        SELECT city, COUNT(*) as total_routes
+                        SELECT a.city, COUNT(*) as total_routes
                         FROM (
-                        SELECT `source airport` AS city FROM routes
-                        UNION ALL
-                        SELECT `destination airport` AS city FROM routes
+                            SELECT `Source airport` AS airport FROM routes
+                            UNION ALL
+                            SELECT `Destination airport` AS airport FROM routes
                         ) AS all_routes
-                        GROUP BY city
+                        JOIN airports a ON all_routes.airport = a.iata
+                        GROUP BY a.city
                         ORDER BY total_routes DESC
                         LIMIT %s;
+
                     """,
                     (k,)
                 )

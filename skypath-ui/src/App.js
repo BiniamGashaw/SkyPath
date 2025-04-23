@@ -540,7 +540,7 @@ function ReachableSearch() {
         <button
           onClick={() => {
             fetch(
-              `http://localhost:5000/recommendation/Find_Cities_Within_Stops?city=${encodeURIComponent(
+              `http://localhost:5000/recommendation/Find_Nearby_Cities_Within_Stops?city=${encodeURIComponent(
                 city
               )}&stops=${hops}`
             )
@@ -548,20 +548,15 @@ function ReachableSearch() {
               .then((data) => {
                 console.log(data); 
                 if (Array.isArray(data)) {
-                  data.forEach((item, index) =>
-                    console.log(`Item ${index}:`, item)
-                  );
-
                   setOutput(
-                    data.map((d, i) => {
-                      const city =
-                        d.city || d.destination || d.to_city || d.name || d.id;
-                      return `${i + 1}. ${city}`;
-                    })
+                    data.map(
+                      (a, i) => `${i + 1}. ${a[1]} (${a[0]}) - ${a[2]}, ${a[3]}`
+                    )
                   );
                 } else {
-                  setOutput([data.message || "No cities found"]);
+                  setOutput(["No reachable airports found"]);
                 }
+
               })
               .catch(() => setOutput(["Error fetching reachable cities"]));
           }}
