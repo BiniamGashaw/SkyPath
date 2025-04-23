@@ -5,6 +5,9 @@ class SearchModel:
         # Variables
         self.db = db_connection
 
+    def get_airlines_by_minimum_hops(self, stops):
+        return self.graph.find_airlines_by_minimum_hops(int(stops))
+
     def get_airports_by_country(self, country): 
         """
         Airports by country.
@@ -38,7 +41,11 @@ class SearchModel:
                 # Querying Data
                 cursor.execute(
                     """
-                    SELECT DISTINCT airline FROM routes WHERE stops = %s
+                    SELECT DISTINCT a.name
+                    FROM routes r
+                    JOIN airlines a ON r.airline = a.iata
+                    WHERE r.stops = %s
+
                     """,
                     (stops,)
                 )

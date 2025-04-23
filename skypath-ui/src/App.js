@@ -224,7 +224,7 @@ function CountrySearch() {
 
 
 function StopsSearch() {
-  const [stops, setStops] = useState("");
+  const [stops, setStops] = useState("1");
   const [output, setOutput] = useState([]);
 
   return (
@@ -232,14 +232,14 @@ function StopsSearch() {
       <>
         <h2>Directions:</h2>
         <p>
-          <strong>Enter the amount of stops wanted</strong>
+          <strong>Enter the minimum number of stops</strong>
         </p>
-        <p>Details: A list of all airlines with inputted stops appear</p>
+        <p>Details: Airlines with at least this many stops will appear</p>
         <input
           type="number"
           value={stops}
           onChange={(e) => setStops(e.target.value)}
-          placeholder="Amount of stops"
+          placeholder="Minimum stops"
         />
         <button
           onClick={() => {
@@ -249,7 +249,9 @@ function StopsSearch() {
               .then((res) => res.json())
               .then((data) => {
                 if (Array.isArray(data)) {
-                  setOutput(data.map((a) => `${a.airline}`));
+                  setOutput(
+                    data.map((a, i) => `${i + 1}. ${a.name} (${a.airline})`)
+                  );
                 } else {
                   setOutput([data.message || "No data returned"]);
                 }
@@ -263,6 +265,7 @@ function StopsSearch() {
     </InputSection>
   );
 }
+
 
 function CodeShareSearch() {
   const [checked, setChecked] = useState(false);
