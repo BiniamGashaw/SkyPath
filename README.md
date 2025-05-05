@@ -74,7 +74,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-#### Create a `.env` file in `Backend/`:
+#### Create a `.env` file in `SkyPath/`:
 ```env
 DB_HOST=airlines-search-engine-db.chg68wcwe6cs.us-west-1.rds.amazonaws.com
 DB_NAME=airDB
